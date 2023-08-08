@@ -1,0 +1,39 @@
+---
+- hosts: dev
+  connection: ssh
+
+  tasks: 
+    - name: install java
+      command : amazon-linux-extras install java-openjdk11 -y
+
+    - name: getting url fro apache-tomcat
+      get_url:
+        url: http://dlcdn.apache.org/tomcat/tomcat-9/v9.0.78/bin/apache-tomcat-9.0.78.tar.gz
+        dest: "/root/"
+
+    - name : untar it
+      command: tar -zxvf apache-tomcat-9.0.78.tar.gz
+
+    - name: rename tomcat
+      command: mv apache-tomcat-9.0.78 tomcat
+      tags: abc
+
+    - name: start the tomcat
+      shell: nohup /root/tomcat/bin/startup.sh
+
+    - name: replace context.xml
+      template: 
+        src: /root/context.xml
+        dest: /root/tomcat/webapps/manager/META-INF/context.xml
+
+    - name: replace tomcat-user.xml
+      template:
+        src: /root/tomcat-users.xml
+        dest: /root/tomcat/conf/tomcat-users.xml
+
+    - name: restart tomcat
+      shell: nohup /root/tomcat/bin/shutdown.sh
+
+    - name: start the tomcat
+      shell: nohup /root/tomcat/bin/startup.sh
+
